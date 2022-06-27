@@ -1,13 +1,21 @@
-#include <iostream>
-#include <fftw3.h>
-#include <ftxui/dom/canvas.hpp>
-#include <portaudio.h>
-#include <sndfile.h>
 
 int main()
 {
+	
+	//Create input menu if no arg provided
 
-	std::cout << "Howdy World" << std::endl;
-	std::cin.get();
+
+	//Create input menu with added file if arg provided
+
+
+
+	
+	//Load file for playing
+
+	
+	
+	
+	
+	//Play file & visualisation
 
 }
