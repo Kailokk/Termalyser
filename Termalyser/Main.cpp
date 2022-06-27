@@ -3,17 +3,18 @@
 #include "InputMenu.h"
 
 
-int main(int argc, char** argv)
+int main(int argc, char *argv[])
 {
-	
-	//Checks for correct arguments
+	//Instantiates a menu system
+	InputMenu menu;
+
+	//Checks for correct arguments, and attaches provided path if given
 	switch (argc)
 	{
 	case (1):
-			//create it with no extra field
 			break;
 	case(2):
-		//Create menu with arg2
+		*menu.path = argv[1];
 		break;
 
 	default:
@@ -21,25 +22,16 @@ int main(int argc, char** argv)
 		return 1;
 		break;
 	}
-	
-	
-
-
-
-
-	if (argc < 2)
-	{
-		//Create blank input menu
-	}
-	else
-	{
-		
-	}
 
 	//Create input menu with added file if arg provided
 
+	if (!menu.ShowMenu())
+	{
+		std::cout << "Program Terminaited";
+		return 1;
+	}
 
-
+	std::cout << "Valid Path";
 	
 	//Load file for playing
 
