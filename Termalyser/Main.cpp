@@ -1,12 +1,13 @@
 #include <iostream>
 
-#include "InputMenu.h"
+#include "MenuSystem.h"
 
 
 int main(int argc, char *argv[])
 {
 	//Instantiates a menu system
-	InputMenu menu;
+	VisualiserSettings visSettings;
+	visSettings.path = "";
 
 	//Checks for correct arguments, and attaches provided path if given
 	switch (argc)
@@ -14,7 +15,7 @@ int main(int argc, char *argv[])
 	case (1):
 			break;
 	case(2):
-		*menu.path = argv[1];
+		visSettings.path = argv[1];
 		break;
 
 	default:
@@ -23,16 +24,18 @@ int main(int argc, char *argv[])
 		break;
 	}
 
+
 	//Create input menu with added file if arg provided
 
-	if (!menu.ShowMenu())
+	while (CheckPathValid(&visSettings))
 	{
-		std::cout << "Program Terminaited";
-		return 1;
+		ShowMenu(&visSettings);
 	}
 
-	std::cout << "Valid Path";
 	
+	
+
+
 	//Load file for playing
 
 	

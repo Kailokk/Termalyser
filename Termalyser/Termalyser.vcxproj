@@ -135,13 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="InputMenu.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MenuSystem.cpp" />
     <ClCompile Include="PlayAudio.cpp" />
     <ClCompile Include="Visualisation.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InputMenu.h" />
+    <ClInclude Include="MenuSystem.h" />
     <ClInclude Include="PlayAudio.h" />
     <ClInclude Include="Visualisation.h" />
   </ItemGroup>

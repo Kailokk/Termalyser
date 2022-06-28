@@ -1,10 +1,19 @@
-#include "InputMenu.h"
-#include <functional>
+#include "MenuSystem.h"
+
+#include <fstream>
+#include <thread>
+
+#include "ftxui/component/component.hpp" 
+#include "ftxui/component/captured_mouse.hpp"  
+#include "ftxui/component/component_base.hpp"  // for ComponentBase
+#include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
+#include "ftxui/dom/elements.hpp"
 
 using namespace ftxui;
+bool FinishGraphicsLoop = false;
+bool FinishThreadLoop = false;
 
-// Display a component nicely with a title on the left.
-Component InputMenu::Wrap(std::string name, Component component)
+Component Wrap(std::string name, Component component)
 {
 	return Renderer(component, [name, component]
 		{
@@ -12,21 +21,24 @@ Component InputMenu::Wrap(std::string name, Component component)
 					   text(name) | size(WIDTH, EQUAL, 16),
 					   separator(),
 					   component->Render() | xflex,
-				}) |
-				xflex;
+				}) | xflex;
 		});
 }
 
-bool InputMenu::ShowMenu()
+//Creates Screen
+VisualiserSettings* visSettings;
+
+void ShowMenu(VisualiserSettings* settings)
 {
-	//Creates Screen
+	visSettings = settings;
+
 	auto screen = ScreenInteractive::FitComponent();
 
 	//Renders Title
 	auto title = Renderer([&]
 		{
 			return hbox({
-					   text(titleText) | size(WIDTH, EQUAL, 80),
+					   text("Please choose your visualisation mode, and provide a valid file path") | size(WIDTH, EQUAL, 80),
 				}) |
 				xflex;
 		});
@@ -43,34 +55,23 @@ bool InputMenu::ShowMenu()
 	auto radiobox = Radiobox(&visualisation_entries, &visualisation_selected);
 	radiobox = Wrap("Visualisation", radiobox);
 
-
-	auto input = Input(path, "File Path");
+	InputOption pathOption;
+	pathOption.on_enter = screen.ExitLoopClosure();
+	auto input = Input(&settings->path, "File Path", pathOption);
 	input = Wrap("FilePath", input);
 
-	InputMenu* thisMenu = this;
 
 	
 
-	std::string confirmButton_label = "Confirm";
-	std::function<void()> Confirmation = [&] { thisMenu->Confirmation(thisMenu->screen); };
-	ftxui::Closure func = Confirmation;
-	auto confirm = Button(&confirmButton_label, func);
-	screen.ExitLoopClosure();
-
-	std::string quitButton_label = "Quit";
+	std::string quitButton_label = "Play";
 	std::function<void()> on_button_clicked_;
 	auto quit = Button(&quitButton_label, screen.ExitLoopClosure());
-	auto buttons = Container::Horizontal({
-		quit, confirm,
-		});
-
-
-
+	
 	auto layout = Container::Vertical({
 		title,
 		 radiobox,
 		 input,
-	   buttons
+	   quit
 		});
 
 	auto component = Renderer(layout, [&]
@@ -78,41 +79,28 @@ bool InputMenu::ShowMenu()
 			return vbox({
 						title->Render(),
 						separator(),
-						separator(),
 					   radiobox->Render(),
 					   separator(),
 					   input->Render(),
 					   separator(),
-					   buttons->Render(),
+					   quit->Render(),
 				}) |
 				xflex | size(WIDTH, GREATER_THAN, 80) | border;
 		});
-
+	
 	screen.Loop(component);
-	return returnValue;
+	screen.Clear();
 }
 
-void InputMenu::Confirmation(ScreenInteractive& screen)
-{
-	if (CheckValidPath())
-	{
-		returnValue = true;
-		screen.ExitLoopClosure();
-	}
-	else
-	{
-		titleText = "Invalid Path Provided, please try again!";
-	}
-}
 
-bool InputMenu::CheckValidPath()
+bool CheckPathValid(VisualiserSettings* visSettings)
 {
-	if (path->find('.') != std::string::npos)
+	std::ifstream test(visSettings->path);
+	if (!test)
 	{
-		if (path->find('/') != std::string::npos)
-		{
-			return true;
-		}
+	return true;
 	}
 	return false;
 }
+
+

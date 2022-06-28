@@ -18,24 +18,24 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputMenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PlayAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Visualisation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MenuSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InputMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PlayAudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Visualisation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
