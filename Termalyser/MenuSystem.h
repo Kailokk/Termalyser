@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "ftxui/component/component.hpp" `
+#include "ftxui/component/component.hpp" 
 
 enum VisualiserMode
 {
@@ -13,6 +13,15 @@ struct VisualiserSettings
 {
 	std::string path;
 	VisualiserMode visMode;
+};
+
+
+class Menu
+{
+public:
+
+
+
 };
 
 extern VisualiserSettings* visSetings;

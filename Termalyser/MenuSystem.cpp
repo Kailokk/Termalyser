@@ -25,6 +25,7 @@ Component Wrap(std::string name, Component component)
 		});
 }
 
+
 //Creates Screen
 VisualiserSettings* visSettings;
 
@@ -32,7 +33,7 @@ void ShowMenu(VisualiserSettings* settings)
 {
 	visSettings = settings;
 
-	auto screen = ScreenInteractive::FitComponent();
+	auto screen = ScreenInteractive::TerminalOutput();
 
 	//Renders Title
 	auto title = Renderer([&]
@@ -52,21 +53,28 @@ void ShowMenu(VisualiserSettings* settings)
 		"3D Frequency Plot",
 		"Particle Oscilloscope",
 	};
+
 	auto radiobox = Radiobox(&visualisation_entries, &visualisation_selected);
 	radiobox = Wrap("Visualisation", radiobox);
 
+
+	std::function<void()> on_button_clicked_ = [&] { screen.ExitLoopClosure(); };
+	auto fptr = [&screen] { screen.Clear(); screen.ExitLoopClosure(); };
+
+	std::function<void(const ScreenInteractive* s)> lambda = [](const ScreenInteractive* s) { s->ExitLoopClosure(); };
+
+
 	InputOption pathOption;
-	pathOption.on_enter = screen.ExitLoopClosure();
+	pathOption.on_enter = on_button_clicked_;
 	auto input = Input(&settings->path, "File Path", pathOption);
 	input = Wrap("FilePath", input);
 
 
-	
 
 	std::string quitButton_label = "Play";
-	std::function<void()> on_button_clicked_;
+
 	auto quit = Button(&quitButton_label, screen.ExitLoopClosure());
-	
+
 	auto layout = Container::Vertical({
 		title,
 		 radiobox,
@@ -87,9 +95,13 @@ void ShowMenu(VisualiserSettings* settings)
 				}) |
 				xflex | size(WIDTH, GREATER_THAN, 80) | border;
 		});
-	
+
+
+
+	/*
 	screen.Loop(component);
 	screen.Clear();
+*/
 }
 
 
@@ -98,7 +110,7 @@ bool CheckPathValid(VisualiserSettings* visSettings)
 	std::ifstream test(visSettings->path);
 	if (!test)
 	{
-	return true;
+		return true;
 	}
 	return false;
 }
