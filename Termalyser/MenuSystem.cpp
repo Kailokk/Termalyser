@@ -1,19 +1,6 @@
 #include "MenuSystem.h"
-
-#include <fstream>
 #include <filesystem>
-#include <thread>
-#include <iostream>
-#include <fstream>
-#include <cstdint>
-#include <filesystem>
-
-#include "ftxui/component/component.hpp" 
-#include "ftxui/component/captured_mouse.hpp"  
-#include "ftxui/component/component_base.hpp"  // for ComponentBase
-#include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
-#include "ftxui/dom/elements.hpp"
-
+#include "ftxui/component/screen_interactive.hpp"
 using namespace ftxui;
 
 Component Wrap(std::string name, Component component)
@@ -34,7 +21,6 @@ void ShowMenu(VisualiserSettings* settings)
 {
 	//Initialise Screen
 	ScreenInteractive screen = ScreenInteractive::FitComponent();
-
 	Component title = Renderer([&]
 		{
 			return hbox({
@@ -43,19 +29,16 @@ void ShowMenu(VisualiserSettings* settings)
 				}) | xflex;
 		});
 
-
-
 	const std::vector<std::string> menu_entries = {
 	 "OSCILLOSCOPE",
 	 "SPECTRUM ANALYSER",
 	 "SPECTRUM PLOT",
 	};
-	int menu_selected = 0;
+	int menuSelection = 0;
 	MenuOption menuOption;
 	menuOption.on_enter = screen.ExitLoopClosure();
-	auto menu = Menu(&menu_entries, &menu_selected, menuOption);
-	menu = Wrap("Visualisation \nMode", menu);
-
+	auto menu = Menu(&menu_entries, &menuSelection, menuOption);
+	menu = Wrap("Visualisation Mode", menu);
 	auto component = Renderer(menu, [&]
 		{
 			return vbox(
@@ -68,7 +51,7 @@ void ShowMenu(VisualiserSettings* settings)
 		});
 
 	screen.Loop(component);
-	settings->visMode = static_cast<VisualiserMode>(menu_selected);
+	settings->visMode = static_cast<VisualiserMode>(menuSelection);
 }
 
 

@@ -5,13 +5,6 @@
 
 int main(int argc, char *argv[])
 {
-	//Instantiates a menu system
-	VisualiserSettings visSettings;
-	visSettings.path = "";
-	AudioData audioData;
-
-
-
 	// Check Correct Arguments Presented 
 	if (argc < 2 || argc >2)
 	{
@@ -20,16 +13,23 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	//Data Initialisation
+	VisualiserSettings visSettings;
+	visSettings.path = "";
 	visSettings.path = argv[1];
-
+	AudioData audioData;
+	
 	if (!CheckPathValid(visSettings.path))
 	{
 		std::cout << "Path provided did not contain a file" << std::endl;
 		return 1;
 	}
 
+	//Display visualisation mode menu
 	ShowMenu(&visSettings);
 	
+
+
 
 	//Load file for playing
 
