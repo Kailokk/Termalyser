@@ -1,7 +1,12 @@
 #include "MenuSystem.h"
 
 #include <fstream>
+#include <filesystem>
 #include <thread>
+#include <iostream>
+#include <fstream>
+#include <cstdint>
+#include <filesystem>
 
 #include "ftxui/component/component.hpp" 
 #include "ftxui/component/captured_mouse.hpp"  
@@ -10,15 +15,13 @@
 #include "ftxui/dom/elements.hpp"
 
 using namespace ftxui;
-bool FinishGraphicsLoop = false;
-bool FinishThreadLoop = false;
 
 Component Wrap(std::string name, Component component)
 {
 	return Renderer(component, [name, component]
 		{
 			return hbox({
-					   text(name) | size(WIDTH, EQUAL, 16),
+					   text(name) | size(WIDTH, EQUAL, 20),
 					   separator(),
 					   component->Render() | xflex,
 				}) | xflex;
@@ -26,91 +29,58 @@ Component Wrap(std::string name, Component component)
 }
 
 
-//Creates Screen
-VisualiserSettings* visSettings;
-
+//Creates menu and loops until user selects a preset
 void ShowMenu(VisualiserSettings* settings)
 {
-	visSettings = settings;
+	//Initialise Screen
+	ScreenInteractive screen = ScreenInteractive::FitComponent();
 
-	auto screen = ScreenInteractive::TerminalOutput();
-
-	//Renders Title
-	auto title = Renderer([&]
+	Component title = Renderer([&]
 		{
 			return hbox({
-					   text("Please choose your visualisation mode, and provide a valid file path") | size(WIDTH, EQUAL, 80),
-				}) |
-				xflex;
+					   text("Please Select Your Visualisation Mode and Press Enter") | size(WIDTH, EQUAL, 60),
+
+				}) | xflex;
 		});
 
 
-	//Radiobox for visualisation
-	int visualisation_selected = 0;
-	std::vector<std::string> visualisation_entries = {
-		"Oscilloscope",
-		"Frequency Response",
-		"3D Frequency Plot",
-		"Particle Oscilloscope",
+
+	const std::vector<std::string> menu_entries = {
+	 "OSCILLOSCOPE",
+	 "SPECTRUM ANALYSER",
+	 "SPECTRUM PLOT",
 	};
+	int menu_selected = 0;
+	MenuOption menuOption;
+	menuOption.on_enter = screen.ExitLoopClosure();
+	auto menu = Menu(&menu_entries, &menu_selected, menuOption);
+	menu = Wrap("Visualisation \nMode", menu);
 
-	auto radiobox = Radiobox(&visualisation_entries, &visualisation_selected);
-	radiobox = Wrap("Visualisation", radiobox);
-
-
-	std::function<void()> on_button_clicked_ = [&] { screen.ExitLoopClosure(); };
-	auto fptr = [&screen] { screen.Clear(); screen.ExitLoopClosure(); };
-
-	std::function<void(const ScreenInteractive* s)> lambda = [](const ScreenInteractive* s) { s->ExitLoopClosure(); };
-
-
-	InputOption pathOption;
-	pathOption.on_enter = on_button_clicked_;
-	auto input = Input(&settings->path, "File Path", pathOption);
-	input = Wrap("FilePath", input);
-
-
-
-	std::string quitButton_label = "Play";
-
-	auto quit = Button(&quitButton_label, screen.ExitLoopClosure());
-
-	auto layout = Container::Vertical({
-		title,
-		 radiobox,
-		 input,
-	   quit
-		});
-
-	auto component = Renderer(layout, [&]
+	auto component = Renderer(menu, [&]
 		{
-			return vbox({
-						title->Render(),
-						separator(),
-					   radiobox->Render(),
-					   separator(),
-					   input->Render(),
-					   separator(),
-					   quit->Render(),
+			return vbox(
+				{
+				title->Render(),
+				separator(),
+				menu->Render(),
 				}) |
-				xflex | size(WIDTH, GREATER_THAN, 80) | border;
+				xflex | size(WIDTH, GREATER_THAN, 40) | border;
 		});
 
-
-
-	/*
 	screen.Loop(component);
-	screen.Clear();
-*/
+	settings->visMode = static_cast<VisualiserMode>(menu_selected);
 }
 
 
-bool CheckPathValid(VisualiserSettings* visSettings)
+bool CheckPathValid(std::string& path)
 {
-	std::ifstream test(visSettings->path);
-	if (!test)
+	using namespace std::filesystem;
+	if (std::filesystem::exists(path))
 	{
-		return true;
+		if (path.find(".") != std::string::npos)
+		{
+			return true;
+		}
 	}
 	return false;
 }

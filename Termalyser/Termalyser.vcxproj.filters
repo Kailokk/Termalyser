@@ -38,5 +38,8 @@
     <ClInclude Include="MenuSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VisualiserSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

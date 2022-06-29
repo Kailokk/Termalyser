@@ -8,6 +8,9 @@ int main(int argc, char *argv[])
 	//Instantiates a menu system
 	VisualiserSettings visSettings;
 	visSettings.path = "";
+	AudioData audioData;
+
+
 
 	// Check Correct Arguments Presented 
 	if (argc < 2 || argc >2)
@@ -17,19 +20,16 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	visSettings.path = argv[1];
 
-	//Create input menu with added file if arg provided
-	while (CheckPathValid(&visSettings))
+	if (!CheckPathValid(visSettings.path))
 	{
-		ShowMenu(&visSettings);
-		Sleep(1000);
-		std::cout << "Its Working";
-		Sleep(5000);
+		std::cout << "Path provided did not contain a file" << std::endl;
+		return 1;
 	}
 
+	ShowMenu(&visSettings);
 	
-	
-
 
 	//Load file for playing
 

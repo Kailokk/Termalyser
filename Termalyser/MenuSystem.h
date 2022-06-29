@@ -1,34 +1,9 @@
 #pragma once
-#include <string>
+
 #include "ftxui/component/component.hpp" 
-
-enum VisualiserMode
-{
-	VISMODE_OSC,
-	VISMODE_SPECT,
-	VISMODE_TIMESPECT
-};
-
-struct VisualiserSettings
-{
-	std::string path;
-	VisualiserMode visMode;
-};
-
-
-class Menu
-{
-public:
-
-
-
-};
-
-extern VisualiserSettings* visSetings;
-extern bool FinishGraphicsLoop;
-extern bool FinishThreadLoop;
+#include "VisualiserSettings.h"
 
 
 void ShowMenu(VisualiserSettings* settings);
-bool CheckPathValid(VisualiserSettings* visSettings);
+bool CheckPathValid(std::string& path);
 

@@ -144,6 +144,7 @@
     <ClInclude Include="MenuSystem.h" />
     <ClInclude Include="PlayAudio.h" />
     <ClInclude Include="Visualisation.h" />
+    <ClInclude Include="VisualiserSettings.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
