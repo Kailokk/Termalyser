@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "MenuSystem.h"
-#include <windows.h>
+#include "PlayAudio.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,8 +28,16 @@ int main(int argc, char *argv[])
 	//Display visualisation mode menu
 	ShowMenu(&visSettings);
 	
+	std::string message;
 
+	
 
+	if (!PlayAudio(&visSettings.path, &message))
+	{
+		std::cout << "ERROR: " << message << std::endl;
+		return 1;
+	}
+	
 
 	//Load file for playing
 
