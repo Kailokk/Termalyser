@@ -77,6 +77,9 @@ bool PlayAudio(std::string* path, std::string* OutputMessage)
 int readSize = 0;
 float* buffer, leftch[FRAMES_PER_BUFFER], rightch[FRAMES_PER_BUFFER];
 
+
+
+
 static int Callback(const void* input,
 	void* output,
 	unsigned long frameCount,
@@ -91,7 +94,9 @@ static int Callback(const void* input,
 	int nFrames = frameCount;
 	int currentRead;
 
+	//set cursor to beginning
 	cursor = out;
+	
 	while (frameSize > 0)
 	{
 		//seek out current position in file
@@ -111,11 +116,11 @@ static int Callback(const void* input,
 			//Otherwise continue filling output buffer as normal
 			currentRead = frameSize;
 			//and increment the file position
-			data->position += frameSize;
+			data->position += currentRead;
 		}
 
 		//Read straight into the buffer
-		nFrames = sf_read_float(data->file, cursor, currentRead);
+		nFrames = sf_readf_float(data->file, cursor, currentRead);
 		readSize = currentRead;
 		buffer = cursor;
 		if (nFrames < frameCount)
@@ -133,3 +138,4 @@ static int Callback(const void* input,
 	//Continue playing audio
 	return paContinue;
 }
+

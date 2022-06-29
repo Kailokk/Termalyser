@@ -5,7 +5,7 @@
 
 #include "VisualiserSettings.h"
 
-#define FRAMES_PER_BUFFER (512)
+#define FRAMES_PER_BUFFER (1024)
 
 
 extern int readSize;
