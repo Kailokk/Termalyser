@@ -1,11 +1,13 @@
 #include "PlayAudio.h"
 
+//Audio Buffer
+float* buffer, leftch[FRAMES_PER_BUFFER], rightch[FRAMES_PER_BUFFER];
+//Buffer Read Size
+int readSize = 0;
 
-
-
-bool PlayAudio(std::string* path, std::string* OutputMessage)
+bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut)
 {
-	
+	*bufferOut = buffer;
 	AudioData* data = (AudioData*)malloc(sizeof(AudioData));
 	PaError error;
 	PaStreamParameters outputParameters;
@@ -70,12 +72,7 @@ bool PlayAudio(std::string* path, std::string* OutputMessage)
 		return false;
 	}
 	return true;
-
 }
-
-
-int readSize = 0;
-float* buffer, leftch[FRAMES_PER_BUFFER], rightch[FRAMES_PER_BUFFER];
 
 
 
@@ -96,7 +93,7 @@ static int Callback(const void* input,
 
 	//set cursor to beginning
 	cursor = out;
-	
+
 	while (frameSize > 0)
 	{
 		//seek out current position in file
@@ -134,8 +131,6 @@ static int Callback(const void* input,
 		//Decrement the count of samples left
 		frameSize -= currentRead;
 	}
-
 	//Continue playing audio
 	return paContinue;
 }
-
