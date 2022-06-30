@@ -20,7 +20,6 @@ int main(int argc, char* argv[])
 {
 
 	std::string args = "D:\\4 Personal\\Programming\\Personal_Projects\\Termalyser\\x64\\Debug\\bleep2.wav";
-	/*
 	// Check Correct Arguments Presented
 	if (argc < 2 || argc >2)
 	{
@@ -28,42 +27,29 @@ int main(int argc, char* argv[])
 			<< argc - 1 << " Arguments" << std::endl;
 		return 1;
 	}
-	*/
 	//Data Initialisation
 	VisualiserSettings visSettings;
 	visSettings.path = "";
-	//	visSettings.path = argv[1];
+		visSettings.path = argv[1];
 	AudioData audioData;
-	/*
 	if (!CheckPathValid(visSettings.path))
 	{
 		std::cout << "Path provided did not contain a file" << std::endl;
 		return 1;
 	}
-	*/
 	//Display visualisation mode menu
 	ShowMenu(&visSettings);
 
+	//Error Message returned from audio player
 	std::string message;
 
 	//Pointer to the audio buffer, for the graphic to read
-
 	float* buffer;
 
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::FitComponent();
-
-
-	visSettings.path = args;
-	/*
-	std::thread test_Thread([&screen]
-		{
-			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(5s);
-			screen.ExitLoopClosure();
-			std::cout << "Something TO Print";
-		});
-		*/
-	bool refresh_ui_continue = true;
+	//visSettings.path = args;
+	
+		bool refresh_ui_continue = true;
 		std::thread Audio_Thread([&screen, &visSettings,&message,&buffer, &refresh_ui_continue]
 			{
 				using namespace std::chrono_literals;
