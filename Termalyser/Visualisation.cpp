@@ -15,6 +15,8 @@ using namespace ftxui;
 
 std::chrono::steady_clock::time_point start = (std::chrono::steady_clock::now());
 
+int prev = 0;
+
 ftxui::Component Oscilloscope(float**& bufferPointer)
 {
 
@@ -22,24 +24,32 @@ ftxui::Component Oscilloscope(float**& bufferPointer)
 		{
 			auto canv = Renderer([&]
 				{
-					auto c = Canvas(Terminal::Size().dimx, (Terminal::Size().dimy) * 4);
+					auto c = Canvas(FRAMES_PER_BUFFER, 100);
 
 
-					c.DrawText(0, 0, std::to_string(Terminal::Size().dimy));
+					int spacing = c.width() / 2;
+
+					c.DrawText(0, 0, std::to_string(spacing));
+					
+
 					for (int x = 0; x < FRAMES_PER_BUFFER; x++)
 					{
-						float leftChn = (*bufferPointer)[x] * Terminal::Size().dimy * 4;
-						float rightChn = (*bufferPointer)[x + 1] * Terminal::Size().dimy * 4;
-
+						float leftChn = (*bufferPointer)[x] * 20;
+						float rightChn = (*bufferPointer)[x + 1] * 20;
 						int comb = (int)(leftChn + rightChn) + 50;
 
-						c.DrawBlockLine(x, c.height() / 2, x, +comb);
-						x += 1;
+						
+
+						if (x < FRAMES_PER_BUFFER)
+						{
+							c.DrawPointLine(x, comb, x -1, prev);
+							prev = comb;
+						}
 					}
 					return canvas(std::move(c));
 				});
 
-			return hbox(
+			return flexbox(
 				{
 					canv->Render()
 				}) | border;

@@ -85,12 +85,12 @@ int main(int argc, char* argv[])
 
 	std::thread Graphics_Thread([&bufferPointer, &screen]
 		{
-		/*	while (*bufferPointer[0] == 0 && (*bufferPointer)[1] == 1)
+			while (*bufferPointer[0] == 0 && (*bufferPointer)[1] == 1)
 			{
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(5ms);
 			}
-*/
+
 				screen.Loop(Oscilloscope(bufferPointer));
 		
 		});
