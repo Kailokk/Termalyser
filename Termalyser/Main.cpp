@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		visSettings.path = "";
+		visSettings.path = "C:\\Users\\kailo\\OneDrive\\Desktop\\Desktop\\Mix.wav";
 	}
 	
 	//Display visualisation mode menu, exits if menu returns false
@@ -98,24 +98,13 @@ int main(int argc, char* argv[])
 				lastFrame = (std::chrono::steady_clock::now());
 			}
 		});
-	switch (visSettings.visMode)
-	{
-	case VISMODE_SCOPE:
 
-		break;
-	case VISMODE_PARTICLESCOPE:
 
-		break;
-	case VISMODE_SPECT:
 
-		break;
-	case VISMODE_TIMESPECT:
+	screen.Loop(Oscilloscope(buffer));
 
-		break;
-	default:
-		break;
-	}
 
+	
 
 	Audio_Thread.join();
 	Graphics_Thread.join();
