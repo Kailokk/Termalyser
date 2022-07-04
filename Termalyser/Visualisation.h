@@ -13,6 +13,6 @@
 //3D Spectrum Analyser
 
 
-ftxui::Component Oscilloscope(float*** buffer, bool &ClearScreen);
+ftxui::Component Oscilloscope(float* buffer);
 
-ftxui::Component TestComponent(bool &ClearScreen);
+ftxui::Component TestComponent();

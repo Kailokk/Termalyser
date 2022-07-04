@@ -7,6 +7,7 @@
 
 #define FRAMES_PER_BUFFER (256)
 
+
 	static int Callback(const void* input,
 		void* output,
 		unsigned long frameCount,
@@ -14,7 +15,7 @@
 		PaStreamCallbackFlags statusFlags,
 		void* audioData);
 
-	bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut);
+	bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut);
 
 
 

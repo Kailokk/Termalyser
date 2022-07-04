@@ -18,7 +18,10 @@
 
 int main(int argc, char* argv[])
 {
-	/*
+
+
+
+
 	// Check Correct Arguments Presented
 	if (argc > 2)
 	{
@@ -26,11 +29,11 @@ int main(int argc, char* argv[])
 			<< argc - 1 << " Arguments" << std::endl;
 		return 1;
 	}
-	*/
+
 	//Data Initialisation
 	VisualiserSettings visSettings;
 	AudioData audioData;
-	/*
+
 	//Checking if a path was provided, and adding if so
 	if (argc > 1)
 	{
@@ -40,9 +43,7 @@ int main(int argc, char* argv[])
 	{
 		visSettings.path = "";
 	}
-	*/
-
-	visSettings.path = "D:\\4 Personal\\Programming\\Personal_Projects\\Termalyser\\x64\\Debug\\mix.wav";
+	
 	//Display visualisation mode menu, exits if menu returns false
 	if (!ShowMenu(&visSettings))
 	{
@@ -53,76 +54,54 @@ int main(int argc, char* argv[])
 	std::string message;
 
 	//Pointer to the audio buffer, for the graphic to read
-	float* buffer = nullptr;
-	float** bufferPtr;
-	float*** bufferPtrPtr =  (float***)malloc(sizeof(float**));
-	bufferPtr = &buffer;
-
+	float* buffer;
 
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::FitComponent();
+	//visSettings.path = args;
 
-	bool close_Display = false;
-	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPtr, &close_Display, &bufferPtrPtr]
+	bool refresh_ui_continue = true;
+	std::thread Audio_Thread([&screen, &visSettings, &message, &buffer, &refresh_ui_continue]
 		{
 			using namespace std::chrono_literals;
-			std::function<void()> CloseScreen = screen.ExitLoopClosure();
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
-			if (!PlayAudio(&visSettings.path, &message, bufferPtrPtr))
+			if (!PlayAudio(&visSettings.path, &message, &buffer))
 			{
-				close_Display = false;
-				CloseScreen();
+				refresh_ui_continue = false;
+				auto func = screen.ExitLoopClosure();
+				func();
 				std::cout << "ERROR: " << message << std::endl;
 				return;
 			}
-			close_Display = false;
-			std::this_thread::sleep_for(1ms);
-			CloseScreen();
+			refresh_ui_continue = false;
+			std::this_thread::sleep_for(50ms);
+			auto func = screen.ExitLoopClosure();
+			screen.Clear();
+			func();
+
 			std::cout << "Audio Playback finished" << std::endl;
 		});
 
-	using namespace std::chrono;
-	steady_clock::time_point lastFrame = (steady_clock::now());
-	std::thread Graphics_Thread([&screen, &close_Display, &lastFrame, &buffer, &bufferPtrPtr, &bufferPtr]
-		{
-			std::this_thread::sleep_for(500ms);
-				buffer = *bufferPtr;
-			//	while (*bufferPtr == nullptr)
-				//{
-			//		std::cout << *bufferPtr << std::endl;
-				//}
-				//std::cout << *bufferPtr << std::endl;
 
-				screen.Loop(Oscilloscope(bufferPtrPtr, close_Display));
-		});
+	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
+	std::thread Graphics_Thread([&screen, &refresh_ui_continue, &lastFrame]
+		{
 
-	while (!close_Display)
-	{
-		steady_clock::time_point currentFrame = (steady_clock::now());
-		float difference = ((float)duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
-		if (difference < (1.0f / 60.0f))
-		{
-			continue;
-		}
-		screen.PostEvent(ftxui::Event::Custom);
-		if (buffer != nullptr)
-		{
-			for (int i = 0; i < FRAMES_PER_BUFFER; i++)
+			while (refresh_ui_continue)
 			{
-		//		std::cout << buffer[i] << " , " << buffer[i + 1] << std::endl;
-				i += 1;
+				std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
+				float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
+				if (difference < (1.0f / 60.0f))
+				{
+					continue;
+				}
+				screen.PostEvent(ftxui::Event::Custom);
+				lastFrame = (std::chrono::steady_clock::now());
 			}
-			
-		}
-		lastFrame = (steady_clock::now());
-	}
-
-//	screen.Loop(TestComponent(close_Display));
-	
-/*
+		});
 	switch (visSettings.visMode)
 	{
 	case VISMODE_SCOPE:
-		screen.Loop(TestComponent(close_Display));
+
 		break;
 	case VISMODE_PARTICLESCOPE:
 
@@ -136,7 +115,7 @@ int main(int argc, char* argv[])
 	default:
 		break;
 	}
-	*/
+
 
 	Audio_Thread.join();
 	Graphics_Thread.join();
