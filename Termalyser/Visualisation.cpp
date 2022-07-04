@@ -13,28 +13,39 @@
 
 using namespace ftxui;
 
-std::chrono::steady_clock::time_point start	 = (std::chrono::steady_clock::now());
+std::chrono::steady_clock::time_point start = (std::chrono::steady_clock::now());
 
-ftxui::Component Oscilloscope(float* buffer)
+ftxui::Component Oscilloscope(float**& bufferPointer)
 {
 
 	return Renderer([&]
 		{
-			auto c = Canvas(FRAMES_PER_BUFFER, 1080);
+			auto canv = Renderer([&]
+				{
+					auto c = Canvas(Terminal::Size().dimx, (Terminal::Size().dimy) * 4);
 
 
-			for (int x = 0; x < FRAMES_PER_BUFFER; x++)
-			{
-				float leftChn = sin(x);
-				float rightChn = 0;
-				int comb = (int)((leftChn + rightChn) * 10) + 50;
+					c.DrawText(0, 0, std::to_string(Terminal::Size().dimy));
+					for (int x = 0; x < FRAMES_PER_BUFFER; x++)
+					{
+						float leftChn = (*bufferPointer)[x] * Terminal::Size().dimy * 4;
+						float rightChn = (*bufferPointer)[x + 1] * Terminal::Size().dimy * 4;
 
-				c.DrawText(x,comb, "0");
-			}
+						int comb = (int)(leftChn + rightChn) + 50;
 
-			return canvas(std::move(c));
+						c.DrawBlockLine(x, c.height() / 2, x, +comb);
+						x += 1;
+					}
+					return canvas(std::move(c));
+				});
+
+			return hbox(
+				{
+					canv->Render()
+				}) | border;
+
+
 		});
-
 }
 
 ftxui::Component TestComponent()

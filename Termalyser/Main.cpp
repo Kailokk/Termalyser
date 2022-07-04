@@ -18,10 +18,6 @@
 
 int main(int argc, char* argv[])
 {
-
-
-
-
 	// Check Correct Arguments Presented
 	if (argc > 2)
 	{
@@ -43,7 +39,7 @@ int main(int argc, char* argv[])
 	{
 		visSettings.path = "C:\\Users\\kailo\\OneDrive\\Desktop\\Desktop\\Mix.wav";
 	}
-	
+
 	//Display visualisation mode menu, exits if menu returns false
 	if (!ShowMenu(&visSettings))
 	{
@@ -55,16 +51,22 @@ int main(int argc, char* argv[])
 
 	//Pointer to the audio buffer, for the graphic to read
 	float* buffer;
+	float numb = 0;
+	float* ptr = &numb;
+	ptr[1] = 1;
+	float** bufferPointer = &ptr;
 
-	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::FitComponent();
+
+
+	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 	//visSettings.path = args;
 
 	bool refresh_ui_continue = true;
-	std::thread Audio_Thread([&screen, &visSettings, &message, &buffer, &refresh_ui_continue]
+	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
 		{
 			using namespace std::chrono_literals;
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
-			if (!PlayAudio(&visSettings.path, &message, &buffer))
+			if (!PlayAudio(&visSettings.path, &message, &bufferPointer))
 			{
 				refresh_ui_continue = false;
 				auto func = screen.ExitLoopClosure();
@@ -73,38 +75,52 @@ int main(int argc, char* argv[])
 				return;
 			}
 			refresh_ui_continue = false;
-			std::this_thread::sleep_for(50ms);
-			auto func = screen.ExitLoopClosure();
-			screen.Clear();
-			func();
+			auto exit = screen.ExitLoopClosure();
+			exit();
 
 			std::cout << "Audio Playback finished" << std::endl;
 		});
 
 
-	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
-	std::thread Graphics_Thread([&screen, &refresh_ui_continue, &lastFrame]
-		{
 
-			while (refresh_ui_continue)
+	std::thread Graphics_Thread([&bufferPointer, &screen]
+		{
+		/*	while (*bufferPointer[0] == 0 && (*bufferPointer)[1] == 1)
 			{
-				std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
-				float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
-				if (difference < (1.0f / 60.0f))
-				{
-					continue;
-				}
-				screen.PostEvent(ftxui::Event::Custom);
-				lastFrame = (std::chrono::steady_clock::now());
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(5ms);
 			}
+*/
+				screen.Loop(Oscilloscope(bufferPointer));
+		
 		});
 
+/*	std::thread Test_Thread([&bufferPointer, &refresh_ui_continue]
+		{
+			while (refresh_ui_continue)
+			{
+			//	std::cout << bufferPointer << std::endl;
+			//	std::cout << *bufferPointer << std::endl;
+				std::cout <<"L: "<< *bufferPointer[0] << std::endl;
+				std::cout <<"R: "<< (*bufferPointer)[1]<<std::endl <<std::endl;
+				
+			}
+		});
+		*/
 
+	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
+	while (refresh_ui_continue)
+	{
+		std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
+		float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
+		if (difference < (1.0f / 60.0f))
+		{
+			continue;
+		}
+		screen.PostEvent(ftxui::Event::Custom);
+		lastFrame = (std::chrono::steady_clock::now());
+	}
 
-	screen.Loop(Oscilloscope(buffer));
-
-
-	
 
 	Audio_Thread.join();
 	Graphics_Thread.join();
@@ -114,3 +130,5 @@ int main(int argc, char* argv[])
 }
 
 
+//To Do
+//Clear screen for main animation

@@ -15,7 +15,7 @@
 		PaStreamCallbackFlags statusFlags,
 		void* audioData);
 
-	bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut);
+	bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut);
 
 
 

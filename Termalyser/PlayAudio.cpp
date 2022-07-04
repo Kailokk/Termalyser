@@ -1,13 +1,13 @@
 #include "PlayAudio.h"
 
 //Audio Buffer
-float* buffer, leftch[FRAMES_PER_BUFFER], rightch[FRAMES_PER_BUFFER];
+float arr[FRAMES_PER_BUFFER];
+float* buffer = (float*)malloc(sizeof(arr));
 //Buffer Read Size
 int readSize = 0;
 
-bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut)
+bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut)
 {
-	*bufferOut = buffer;
 	AudioData* data = (AudioData*)malloc(sizeof(AudioData));
 	PaError error;
 	PaStreamParameters outputParameters;
@@ -53,7 +53,10 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut)
 
 	while (Pa_IsStreamActive(stream))
 	{
-
+		if (buffer != nullptr)
+		{
+			*bufferOut = &buffer;
+		}
 		Pa_Sleep(100);
 	}
 	sf_close(data->file);
