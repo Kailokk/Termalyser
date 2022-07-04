@@ -1,13 +1,17 @@
 #include "PlayAudio.h"
+#include <iostream>
 
+//, leftch[FRAMES_PER_BUFFER], rightch[FRAMES_PER_BUFFER]
 //Audio Buffer
-float* buffer, leftch[FRAMES_PER_BUFFER], rightch[FRAMES_PER_BUFFER];
+float* buffer;
+float** bufferPointer;
 //Buffer Read Size
 int readSize = 0;
 
-bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut)
+bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut)
 {
-	*bufferOut = buffer;
+	*buffer = 0.0f;
+	bufferPointer = (float**)malloc(sizeof(float*));
 	AudioData* data = (AudioData*)malloc(sizeof(AudioData));
 	PaError error;
 	PaStreamParameters outputParameters;
@@ -37,7 +41,7 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut)
 	outputParameters.suggestedLatency = 0.2;
 	outputParameters.hostApiSpecificStreamInfo = 0;
 
-	error = Pa_OpenStream(&stream,0, &outputParameters, data->info.samplerate, FRAMES_PER_BUFFER, paNoFlag, Callback, data);
+	error = Pa_OpenStream(&stream, 0, &outputParameters, data->info.samplerate, FRAMES_PER_BUFFER, paNoFlag, Callback, data);
 	if (error != paNoError)
 	{
 		*OutputMessage = "Problem Opening Stream";
@@ -53,9 +57,18 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float** bufferOut)
 
 	while (Pa_IsStreamActive(stream))
 	{
+		if (*bufferPointer != nullptr)
+		{
+			if ((**bufferOut) != nullptr)
+			{
+				//*bufferOut = bufferPointer;
+				*bufferPointer = buffer;
+			}
+		}
 
 		Pa_Sleep(100);
 	}
+
 	sf_close(data->file);
 
 	error = Pa_CloseStream(stream);
