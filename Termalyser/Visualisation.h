@@ -15,4 +15,3 @@
 
 ftxui::Component Oscilloscope(float**& bufferPointer);
 
-ftxui::Component TestComponent();

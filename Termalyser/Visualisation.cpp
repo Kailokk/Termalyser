@@ -2,6 +2,7 @@
 #include "PlayAudio.h"
 
 #include <chrono>
+#include <vector>
 
 #include "ftxui/component/component.hpp"  // for Renderer, CatchEvent, Horizontal, Menu, Tab
 #include "ftxui/component/component_base.hpp"      // for ComponentBase
@@ -14,73 +15,137 @@
 using namespace ftxui;
 
 std::chrono::steady_clock::time_point start = (std::chrono::steady_clock::now());
-
 int prev = 0;
+
+struct coord
+{
+	int xAxis = 0;
+	int yAxis = 0;
+};
+
+coord previous;
 
 ftxui::Component Oscilloscope(float**& bufferPointer)
 {
 
 	return Renderer([&]
 		{
-			auto canv = Renderer([&]
+
+
+			auto my_Canvas = canvas([&](Canvas& c)
 				{
-					auto c = Canvas(FRAMES_PER_BUFFER, 100);
-
-
-					int spacing = c.width() / 2;
-
-					c.DrawText(0, 0, std::to_string(spacing));
+					//c.DrawBlockLine(8, c.height() / 2, c.width()-8, c.height() / 2);
+					float spacing = (float)c.width()*4 /FRAMES_PER_BUFFER;
+					float reduction = (float)FRAMES_PER_BUFFER / (c.width());
 					
-
-					for (int x = 0; x < FRAMES_PER_BUFFER; x++)
+					
+				//	c.DrawText(0, 20, std::to_string(c.width()));
+					
+					if (FRAMES_PER_BUFFER > c.width())
 					{
-						float leftChn = (*bufferPointer)[x] * 20;
-						float rightChn = (*bufferPointer)[x + 1] * 20;
-						int comb = (int)(leftChn + rightChn) + 50;
-
+						c.DrawText(0, 0, "Samples Bigger Than Width divided byh two");
+						//if the possible coords is smaller than the samples
+						//code that only checks a certain volume of samples 
+					/*	float num = FRAMES_PER_BUFFER / c.width();
 						
-
-						if (x < FRAMES_PER_BUFFER)
+						int prevX = 0;
+						for (int x = 0; x < FRAMES_PER_BUFFER; x += num)
 						{
-							c.DrawPointLine(x, comb, x -1, prev);
+							float leftChn = (*bufferPointer)[x] * 20;
+							float rightChn = (*bufferPointer)[x + 1] * 20;
+							int comb = (int)(leftChn + rightChn) + 50;
+							c.DrawPointLine(x, prev, x, comb);
 							prev = comb;
 						}
+						*/
 					}
-					return canvas(std::move(c));
+					else if (FRAMES_PER_BUFFER < c.width())
+					{
+						int num = (int)((c.width() - FRAMES_PER_BUFFER) / FRAMES_PER_BUFFER);
+						c.DrawText(0, 0, "Samples smaller Than Width divided by two");
+						
+						float windowSize = FRAMES_PER_BUFFER / c.width();
+
+						auto in_to_out_frac = 1.0 / windowSize;
+
+
+
+						//if the possible coords is bigger than the buffer size
+						//code that spreads the samples wider than 1
+					
+						c.DrawText(0, 10, std::to_string(num));
+
+						int prevX = 0;
+						for (int x = 0; x < FRAMES_PER_BUFFER; x++)
+						{
+							float leftChn = (*bufferPointer)[x] * 20;
+							float rightChn = (*bufferPointer)[x + 1] * 20;
+							int comb = (int)(leftChn + rightChn) + 50;
+
+							if (x < 1)
+							{
+								c.DrawPointLine(previous.xAxis, previous.yAxis, x, comb);
+							}
+							else
+							{
+								c.DrawPointLine(previous.xAxis, previous.yAxis, x + num, comb);
+							}
+							prev = comb;
+							previous.xAxis = x;
+							previous.yAxis = comb;
+						}
+					}
+					else
+					{
+						
+						c.DrawText(0, 0, "Samples perfect size");
+						//code that writes the samples linearly
+						/*int prevX = 0;
+						for (int x = 0; x < FRAMES_PER_BUFFER; x++)
+						{
+							float leftChn = (*bufferPointer)[x] * 20;
+							float rightChn = (*bufferPointer)[x + 1] * 20;
+							int comb = (int)(leftChn + rightChn) + 50;
+							c.DrawPointLine(previous.xAxis, previous.yAxis, x, comb);
+							previous.xAxis = x;
+							previous.yAxis = comb;
+						}*/
+					}
 				});
 
-			return flexbox(
-				{
-					canv->Render()
-				}) | border;
 
+
+			return my_Canvas | flex;
 
 		});
 }
-
-ftxui::Component TestComponent()
-{
-
-	return Renderer([&]
+/*
+auto canv = Renderer([&]
+	{
+		auto c = Canvas(Terminal::Size().dimx, 100);
+		int spacing = FRAMES_PER_BUFFER / c.width();
+		for (int x = 0; x < FRAMES_PER_BUFFER; x++)
 		{
-			struct Line
+			float leftChn = (*bufferPointer)[x] * 20;
+			float rightChn = (*bufferPointer)[x + 1] * 20;
+			int comb = (int)(leftChn + rightChn) + 50;
+
+			if (x < FRAMES_PER_BUFFER)
 			{
-				float x1;
-				float y1;
-			};
+				c.DrawPointLine(x - spacing, comb, x - 1, prev);
+				prev = comb;
+			}
+		}
+		return canvas(std::move(c)) | flex;
+	});
 
-			std::vector<std::vector<int>> time(1, std::vector<int>(20));
+return hbox(
+	{
 
-			auto c = Canvas(1440, 1080);
+		canv->Render()
+	}) | flex;
 
-			c.DrawText(0, 0, "A symmetrical graph filled");
+})| border;
+*/
 
-			std::chrono::steady_clock::time_point stop = (std::chrono::steady_clock::now());
-			float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()) / 1000.f;
 
-			c.DrawPointOn(sin(difference), 50);
-
-			return canvas(std::move(c));
-		});
-
-}
