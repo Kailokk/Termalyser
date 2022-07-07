@@ -2,8 +2,6 @@
 #include <string>
 #include <sndfile.h>
 
-#define FRAMES_PER_BUFFER (256)
-
 enum VisualiserMode
 {
 	VISMODE_SCOPE,
