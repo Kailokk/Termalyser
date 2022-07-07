@@ -1,18 +1,14 @@
+#include "MenuSystem.h"
+#include "PlayAudio.h"
+#include "Visualisation.h"
+
 #include <iostream>
 #include <thread>
 #include <chrono>
 
-#include "ftxui/component/component.hpp"  // for Renderer, CatchEvent, Horizontal, Menu, Tab
-#include "ftxui/component/component_base.hpp"      // for ComponentBase
-#include "ftxui/component/event.hpp"               // for Event
-#include "ftxui/component/mouse.hpp"               // for Mouse
 #include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
-#include "ftxui/dom/canvas.hpp"  
-#include "ftxui/screen/color.hpp"
 
-#include "MenuSystem.h"
-#include "PlayAudio.h"
-#include "Visualisation.h"
+
 
 
 
@@ -50,21 +46,27 @@ int main(int argc, char* argv[])
 	std::string message;
 
 	//Pointer to the audio buffer, for the graphic to read
-	float* buffer;
-	float numb = 0;
-	float* ptr = &numb;
-	ptr[1] = 1;
-	float** bufferPointer = &ptr;
+	float bufferStartingVal = 0;
+	float* initBufferPointer = &bufferStartingVal;
+	initBufferPointer[1] = 1;
+	float** bufferPointer = &initBufferPointer;
 
-
-
+	//Screen object which loops an ftxui component
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
-	//visSettings.path = args;
-
 	bool refresh_ui_continue = true;
+
+	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
+		{
+			while (*bufferPointer[0] == 0 && (*bufferPointer)[1] == 1)
+			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(1ms);
+			}
+			screen.Loop(Oscilloscope(bufferPointer,refresh_ui_continue));
+		});
+	
 	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
 		{
-			using namespace std::chrono_literals;
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
 			if (!PlayAudio(&visSettings.path, &message, &bufferPointer))
 			{
@@ -77,37 +79,9 @@ int main(int argc, char* argv[])
 			refresh_ui_continue = false;
 			auto exit = screen.ExitLoopClosure();
 			exit();
+	});
 
-			std::cout << "Audio Playback finished" << std::endl;
-		});
-
-
-
-	std::thread Graphics_Thread([&bufferPointer, &screen]
-		{
-			while (*bufferPointer[0] == 0 && (*bufferPointer)[1] == 1)
-			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(5ms);
-			}
-
-				screen.Loop(Oscilloscope(bufferPointer));
-		
-		});
-
-/*	std::thread Test_Thread([&bufferPointer, &refresh_ui_continue]
-		{
-			while (refresh_ui_continue)
-			{
-			//	std::cout << bufferPointer << std::endl;
-			//	std::cout << *bufferPointer << std::endl;
-				std::cout <<"L: "<< *bufferPointer[0] << std::endl;
-				std::cout <<"R: "<< (*bufferPointer)[1]<<std::endl <<std::endl;
-				
-			}
-		});
-		*/
-
+	//Loop which refreshes screen continuously at 60fps
 	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
 	while (refresh_ui_continue)
 	{
@@ -121,14 +95,7 @@ int main(int argc, char* argv[])
 		lastFrame = (std::chrono::steady_clock::now());
 	}
 
-
 	Audio_Thread.join();
 	Graphics_Thread.join();
-	std::cout << "Finished";
-	std::cin.get();
 	return 0;
 }
-
-
-//To Do
-//Clear screen for main animation

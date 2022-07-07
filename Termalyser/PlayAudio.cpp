@@ -8,11 +8,11 @@ int readSize = 0;
 
 bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut)
 {
+	//Initialisations
 	AudioData* data = (AudioData*)malloc(sizeof(AudioData));
 	PaError error;
 	PaStreamParameters outputParameters;
 	PaStream* stream;
-
 	data->position = 0;
 	data->info.format = 0;
 
