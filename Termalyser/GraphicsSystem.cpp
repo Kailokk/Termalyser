@@ -1,7 +1,8 @@
 #include "GraphicsSystem.h"
+
 #include <filesystem>
+
 #include "ftxui/component/screen_interactive.hpp"
-#include "PlayAudio.h"
 
 using namespace ftxui;
 
@@ -48,7 +49,6 @@ bool ShowMenu(VisualiserSettings* settings)
 		continueProgram = false;
 	};
 
-
 	//Renders Title
 	Component title = Renderer([&]
 		{
@@ -85,7 +85,6 @@ bool ShowMenu(VisualiserSettings* settings)
 	Component buttons = Container::Horizontal({
 		quit, confirm,
 		});
-
 
 	//Wraps all sections into one component
 	Component layout = Container::Vertical({
@@ -139,9 +138,7 @@ bool ShowMenu(VisualiserSettings* settings)
 	return continueProgram;
 }
 
-
-
-
+//Prelimenary check on provided filepath
 bool CheckPathValid(std::string& path)
 {
 	if (std::filesystem::exists(path))
@@ -196,6 +193,33 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 							c.DrawBlockLine(x - 1, previousY, x, nextY);
 							previousY = nextY;
 						}
+					});
+				return my_Canvas | flex;
+			}
+		});
+}
+
+
+ftxui::Component SpectrumAnalyser(float**& bufferPointer, bool& showVisualisation)
+{
+	return Renderer([&]
+		{
+			if (!showVisualisation)
+			{
+				return vbox({});
+			}
+			else
+			{
+				auto my_Canvas = canvas([&](Canvas& c)
+					{
+						//Exits early if there is no screen visible
+						if (c.width() == 0)
+						{
+							return;
+						}
+
+						//visualisation code
+
 					});
 				return my_Canvas | flex;
 			}

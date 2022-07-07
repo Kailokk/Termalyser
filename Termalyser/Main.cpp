@@ -7,10 +7,6 @@
 
 #include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
 
-
-
-
-
 int main(int argc, char* argv[])
 {
 	// Check Correct Arguments Presented
@@ -61,7 +57,7 @@ int main(int argc, char* argv[])
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(1ms);
 			}
-			screen.Loop(Oscilloscope(bufferPointer,refresh_ui_continue));
+			screen.Loop(SpectrumAnalyser(bufferPointer,refresh_ui_continue));
 		});
 	
 	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
