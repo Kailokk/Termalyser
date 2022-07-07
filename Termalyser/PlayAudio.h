@@ -5,7 +5,7 @@
 
 #include "VisualiserSettings.h"
 
-#define FRAMES_PER_BUFFER (256)
+
 
 
 	static int Callback(const void* input,

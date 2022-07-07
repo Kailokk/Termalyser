@@ -21,10 +21,7 @@
     <ClCompile Include="PlayAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Visualisation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MenuSystem.cpp">
+    <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,13 +29,10 @@
     <ClInclude Include="PlayAudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Visualisation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MenuSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VisualiserSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
