@@ -200,28 +200,3 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 }
 
 
-ftxui::Component SpectrumAnalyser(float**& bufferPointer, bool& showVisualisation)
-{
-	return Renderer([&]
-		{
-			if (!showVisualisation)
-			{
-				return vbox({});
-			}
-			else
-			{
-				auto my_Canvas = canvas([&](Canvas& c)
-					{
-						//Exits early if there is no screen visible
-						if (c.width() == 0)
-						{
-							return;
-						}
-
-						//visualisation code
-
-					});
-				return my_Canvas | flex;
-			}
-		});
-}

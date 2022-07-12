@@ -18,7 +18,7 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& clearScreen);
 //Dot Visualiser
 
 //Spectrum Analyser
-ftxui::Component SpectrumAnalyser(float**& bufferPointer, bool& showVisualisation)
+
 
 
 //Bar Spectrum Analyser
