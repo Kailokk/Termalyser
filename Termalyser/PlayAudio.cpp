@@ -16,6 +16,7 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 	data->position = 0;
 	data->info.format = 0;
 
+	
 	//Open File
 	data->file = sf_open(path->c_str(), SFM_READ, &data->info);
 	if (sf_error(data->file) != SF_ERR_NO_ERROR)
@@ -23,8 +24,8 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 		*OutputMessage = "Problem Opening File";
 		return false;
 	}
-
 	error = Pa_Initialize();
+	
 	if (error != paNoError)
 	{
 		*OutputMessage = "Problem Initialising Portaudio";
@@ -36,14 +37,14 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 	outputParameters.sampleFormat = paFloat32;
 	outputParameters.suggestedLatency = 0.2;
 	outputParameters.hostApiSpecificStreamInfo = 0;
-
+	
 	error = Pa_OpenStream(&stream,0, &outputParameters, data->info.samplerate, FRAMES_PER_BUFFER, paNoFlag, Callback, data);
 	if (error != paNoError)
 	{
 		*OutputMessage = "Problem Opening Stream";
 		return false;
 	}
-
+	
 	error = Pa_StartStream(stream);
 	if (error != paNoError)
 	{
@@ -76,8 +77,6 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 	}
 	return true;
 }
-
-
 
 
 static int Callback(const void* input,
