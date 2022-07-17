@@ -41,10 +41,10 @@ int main(int argc, char* argv[])
 	std::string message;
 
 	//Pointer to the audio buffer, for the graphic to read
-	float bufferStartingVal = 0;
-	float* initBufferPointer = &bufferStartingVal;
-	initBufferPointer[1] = 1;
-	float** bufferPointer = &initBufferPointer;
+	//float bufferStartingVal[FRAMES_PER_BUFFER];
+	//float* initBufferPointer = &(bufferStartingVal[0]);
+	//initBufferPointer[FRAMES_PER_BUFFER - 1] = 1;
+	float** bufferPointer = nullptr;
 
 	//Screen object which loops an ftxui component
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
@@ -52,15 +52,15 @@ int main(int argc, char* argv[])
 
 	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
 		{
-			while (*bufferPointer[0] == 0 && (*bufferPointer)[1] == 1)
+			while (bufferPointer == nullptr)
 			{
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(1ms);
 				//std::this_thread::sleep_for(5s);
 			}
-			screen.Loop(Oscilloscope(bufferPointer,refresh_ui_continue));
+			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
 		});
-	
+
 	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
 		{
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 			refresh_ui_continue = false;
 			auto exit = screen.ExitLoopClosure();
 			exit();
-	});
+		});
 
 	//Loop which refreshes screen continuously at 60fps
 	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());

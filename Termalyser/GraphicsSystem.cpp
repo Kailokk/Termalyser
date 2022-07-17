@@ -172,13 +172,14 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 						{
 							return;
 						}
+						
 						float stereoCombination[FRAMES_PER_BUFFER / 2];
-						int iterateTwice = 0;
+						int doubleIterator = 0;
 						for (int i=0; i < FRAMES_PER_BUFFER/2 -1; i++)
 						{
-							float combination = (*bufferPointer)[iterateTwice] + (*bufferPointer)[iterateTwice + 1];
+							float combination = (*bufferPointer)[doubleIterator] + (*bufferPointer)[doubleIterator + 1];
 							stereoCombination[i] = combination;
-							iterateTwice += 2;
+							doubleIterator += 2;
 						}
 
 						//Linear Interpolation
@@ -189,9 +190,8 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 							int x2 = std::min(x1 + 1, (FRAMES_PER_BUFFER/2) - 1);
 							float y1 = stereoCombination[x1] * (c.height());
 							float y2 = stereoCombination[x2] * (c.height());
-							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 2);
+							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 3);
 						};
-
 
 						//Previous value to draw a line from
 						int previousY = SampleBuffer(0);
@@ -202,7 +202,6 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 							c.DrawBlockLine(x - 1, previousY, x, nextY);
 							previousY = nextY;
 						}
-
 					});
 				return my_Canvas | flex;
 			}
