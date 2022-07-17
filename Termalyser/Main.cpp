@@ -41,25 +41,14 @@ int main(int argc, char* argv[])
 	std::string message;
 
 	//Pointer to the audio buffer, for the graphic to read
-	//float bufferStartingVal[FRAMES_PER_BUFFER];
-	//float* initBufferPointer = &(bufferStartingVal[0]);
-	//initBufferPointer[FRAMES_PER_BUFFER - 1] = 1;
+	float bufferStartingVal[FRAMES_PER_BUFFER];
+	float* initBufferPointer = &(bufferStartingVal[0]);
+	initBufferPointer[FRAMES_PER_BUFFER - 1] = 1;
 	float** bufferPointer = nullptr;
 
 	//Screen object which loops an ftxui component
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 	bool refresh_ui_continue = true;
-
-	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
-		{
-			while (bufferPointer == nullptr)
-			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(1ms);
-				//std::this_thread::sleep_for(5s);
-			}
-			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
-		});
 
 	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
 		{
@@ -77,13 +66,23 @@ int main(int argc, char* argv[])
 			exit();
 		});
 
-	//Loop which refreshes screen continuously at 60fps
+	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
+		{
+			while (bufferPointer == nullptr)
+			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(1ns);
+			}
+			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
+		});
+	
+	//Loop which refreshes screen continuously at a provided fps
 	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
 	while (refresh_ui_continue)
 	{
 		std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
 		float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
-		if (difference < (1.0f / 30.0f))
+		if (difference < (1.0f / 60.0f))
 		{
 			continue;
 		}

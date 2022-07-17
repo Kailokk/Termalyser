@@ -11,7 +11,7 @@ ftxui::Component Wrap(std::string name, ftxui::Component component);
 
 
 //return render for each visualisation -----------------------------------------------------------------
-int LerpBuffer(int x_not_scaled, float* stereoCombination, ftxui::Canvas& c);
+
 //Oscilloscope
 ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation);
 
