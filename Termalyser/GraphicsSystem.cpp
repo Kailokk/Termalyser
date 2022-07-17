@@ -172,15 +172,23 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 						{
 							return;
 						}
+						float stereoCombination[FRAMES_PER_BUFFER / 2];
+						int iterateTwice = 0;
+						for (int i=0; i < FRAMES_PER_BUFFER/2 -1; i++)
+						{
+							float combination = (*bufferPointer)[iterateTwice] + (*bufferPointer)[iterateTwice + 1];
+							stereoCombination[i] = combination;
+							iterateTwice += 2;
+						}
 
 						//Linear Interpolation
 						auto SampleBuffer = [&](int x_not_scaled)
 						{
-							float x = x_not_scaled * FRAMES_PER_BUFFER / c.width();
+							float x = x_not_scaled * (FRAMES_PER_BUFFER/2) / c.width();
 							int x1 = std::floor(x);
-							int x2 = std::min(x1 + 1, FRAMES_PER_BUFFER - 1);
-							float y1 = (*bufferPointer)[x1] * (c.height());
-							float y2 = (*bufferPointer)[x2] * (c.height());
+							int x2 = std::min(x1 + 1, (FRAMES_PER_BUFFER/2) - 1);
+							float y1 = stereoCombination[x1] * (c.height());
+							float y2 = stereoCombination[x2] * (c.height());
 							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 2);
 						};
 
