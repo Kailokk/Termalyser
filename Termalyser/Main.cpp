@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
 		});
 	
-	//Loop which refreshes screen continuously at a provided fps
+	//Loop which refreshes screen continuously capped at a provided fps
 	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
 	while (refresh_ui_continue)
 	{

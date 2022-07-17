@@ -154,16 +154,6 @@ bool CheckPathValid(std::string& path)
 
 //Visualisations -------------------------------------------------------------
 
-int LerpBuffer(int x_not_scaled, int* stereoCombination, int &canvasHeight, int &canvasWidth)
-{
-	float x = x_not_scaled * (FRAMES_PER_BUFFER / 2) / canvasWidth;
-	int x1 = std::floor(x);
-	int x2 = std::min(x1 + 1, (FRAMES_PER_BUFFER / 2) - 1);
-	float y1 = stereoCombination[x1];
-	float y2 = stereoCombination[x2];
-	return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (canvasHeight / 2);
-}
-
 
 //Block Line Oscilloscope
 ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
@@ -185,9 +175,9 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 						}
 						int canvasHeight = c.height();
 						int canvasWidth = c.width();
-
-						int stereoCombination[FRAMES_PER_BUFFER / 2];
 						
+						c.DrawText(0, 0, "Tests");
+						int stereoCombination[FRAMES_PER_BUFFER / 2];
 						int doubleIterator = 0;
 						for (int i = 0; i < FRAMES_PER_BUFFER / 2; i++)
 						{
@@ -195,25 +185,30 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 							stereoCombination[i] = (int)(combination * (canvasHeight /2));
 							doubleIterator += 2;
 						}
+
+
 						auto SampleBuffer = [&](int x_not_scaled)
 						{
 							float x = x_not_scaled * FRAMES_PER_BUFFER / c.width();
 							int x1 = std::floor(x);
-							int x2 = std::min(x1 + 1, FRAMES_PER_BUFFER - 1);
-							float y1 = (*bufferPointer)[x1] * (c.height());
-							float y2 = (*bufferPointer)[x2] * (c.height());
+							int x2 = std::min(x1 + 1, FRAMES_PER_BUFFER/2);
+							float y1 = stereoCombination[x1];
+							float y2 = stereoCombination[x2];
 							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 2);
 						};
+
+
+
 						//Previous value to draw a line from
-						int previousY = LerpBuffer(0, stereoCombination, canvasHeight, canvasWidth);
+						int previousY = SampleBuffer(0);
 						//draws lines along the center of the x axis, offsetting the y based on the buffers current contents
 						for (int x = 1; x < c.width() - 1; x++)
 						{
-							float nextY = LerpBuffer(x, stereoCombination, canvasHeight, canvasWidth);
+							float nextY = SampleBuffer(x);
 							c.DrawBlockLine(x - 1, previousY, x, nextY);
 							previousY = nextY;
 						}
-
+						
 					});
 				return my_Canvas | flex;
 			}
