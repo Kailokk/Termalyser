@@ -56,8 +56,9 @@ int main(int argc, char* argv[])
 			{
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(1ms);
+				//std::this_thread::sleep_for(5s);
 			}
-			//screen.Loop(SpectrumAnalyser(bufferPointer,refresh_ui_continue));
+			screen.Loop(Oscilloscope(bufferPointer,refresh_ui_continue));
 		});
 	
 	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
