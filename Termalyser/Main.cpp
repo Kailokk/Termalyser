@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 	{
 		std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
 		float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
-		if (difference < (1.0f / 60.0f))
+		if (difference < (1.0f / 30.0f))
 		{
 			continue;
 		}

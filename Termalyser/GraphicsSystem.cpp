@@ -154,6 +154,17 @@ bool CheckPathValid(std::string& path)
 
 //Visualisations -------------------------------------------------------------
 
+int LerpBuffer(int x_not_scaled, float* stereoCombination, ftxui::Canvas &c)
+{
+	float x = x_not_scaled * (FRAMES_PER_BUFFER / 2) / c.width();
+	int x1 = std::floor(x);
+	int x2 = std::min(x1 + 1, (FRAMES_PER_BUFFER / 2) - 1);
+	float y1 = stereoCombination[x1] * (c.height() / 2);
+	float y2 = stereoCombination[x2] * (c.height() / 2);
+	return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 2);
+}
+
+
 //Block Line Oscilloscope
 ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 {
@@ -181,24 +192,24 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 							stereoCombination[i] = combination;
 							doubleIterator += 2;
 						}
-
+						/*
 						//Linear Interpolation
 						auto SampleBuffer = [&](int x_not_scaled)
 						{
 							float x = x_not_scaled * (FRAMES_PER_BUFFER/2) / c.width();
 							int x1 = std::floor(x);
 							int x2 = std::min(x1 + 1, (FRAMES_PER_BUFFER/2) - 1);
-							float y1 = stereoCombination[x1] * (c.height());
-							float y2 = stereoCombination[x2] * (c.height());
-							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 3);
+							float y1 = stereoCombination[x1] * (c.height()/2);
+							float y2 = stereoCombination[x2] * (c.height()/2);
+							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 2);
 						};
-
+						*/
 						//Previous value to draw a line from
-						int previousY = SampleBuffer(0);
+						int previousY = LerpBuffer(0,stereoCombination,c);
 						//draws lines along the center of the x axis, offsetting the y based on the buffers current contents
 						for (int x = 1; x < c.width() - 1; x++)
 						{
-							float nextY = SampleBuffer(x);
+							float nextY = LerpBuffer(x, stereoCombination, c);
 							c.DrawBlockLine(x - 1, previousY, x, nextY);
 							previousY = nextY;
 						}
