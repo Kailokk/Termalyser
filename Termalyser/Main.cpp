@@ -50,6 +50,16 @@ int main(int argc, char* argv[])
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 	bool refresh_ui_continue = true;
 
+	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
+		{
+			while (bufferPointer == nullptr)
+			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(1ns);
+			}
+			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
+		});
+
 	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
 		{
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
@@ -66,15 +76,7 @@ int main(int argc, char* argv[])
 			exit();
 		});
 
-	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
-		{
-			while (bufferPointer == nullptr)
-			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(1ns);
-			}
-			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
-		});
+	
 	
 	//Loop which refreshes screen continuously capped at a provided fps
 	std::chrono::steady_clock::time_point lastFrame = (std::chrono::steady_clock::now());
@@ -82,7 +84,7 @@ int main(int argc, char* argv[])
 	{
 		std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
 		float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
-		if (difference < (1.0f / 60.0f))
+		if (difference < (1.0f / 24.0f))
 		{
 			continue;
 		}
