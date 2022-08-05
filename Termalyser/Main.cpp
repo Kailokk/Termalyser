@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	//Screen object which loops an ftxui component
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 	bool refresh_ui_continue = true;
-
+/**/
 	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
 		{
 			while (bufferPointer == nullptr)

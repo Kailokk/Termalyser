@@ -58,7 +58,13 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 		{
 			*bufferOut = &buffer;
 		}
-		Pa_Sleep(100);
+		/*int framecount = FRAMES_PER_BUFFER / 2;
+		for (int i = 0; i < FRAMES_PER_BUFFER; i++)
+		{
+			std::cout << buffer[i] << std::endl;
+		}
+		std::cout << std::endl << std::endl << std::endl;
+		*/Pa_Sleep(100);
 	}
 	sf_close(data->file);
 
