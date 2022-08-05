@@ -1,12 +1,15 @@
 #include "PlayAudio.h"
 #include <iostream>
-//Audio Buffer
-float arr[FRAMES_PER_BUFFER];
-float* buffer = (float*)malloc(sizeof(arr));
+//Audio Buffers
+float monoBufferSize[FRAMES_PER_BUFFER/2];
+float* monoBuffer = (float*)malloc(sizeof(monoBufferSize));
+float stereoBufferSize[FRAMES_PER_BUFFER];
+float* stereoBuffer = (float*)malloc(sizeof(stereoBufferSize));
+
 //Buffer Read Size
 int readSize = 0;
 
-bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut)
+bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBufferOut, float*** stereoBufferOut)
 {
 	//Initialisations
 	AudioData* data = (AudioData*)malloc(sizeof(AudioData));
@@ -15,7 +18,6 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 	PaStream* stream;
 	data->position = 0;
 	data->info.format = 0;
-
 	
 	//Open File
 	data->file = sf_open(path->c_str(), SFM_READ, &data->info);
@@ -54,18 +56,14 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut
 
 	while (Pa_IsStreamActive(stream))
 	{
-		if (buffer != nullptr)
+		if (monoBuffer != nullptr || stereoBuffer != nullptr)
 		{
-			*bufferOut = &buffer;
+			*monoBufferOut = &monoBuffer;
+			*stereoBufferOut = &stereoBuffer;
 		}
-		/*int framecount = FRAMES_PER_BUFFER / 2;
-		for (int i = 0; i < FRAMES_PER_BUFFER; i++)
-		{
-			std::cout << buffer[i] << std::endl;
-		}
-		std::cout << std::endl << std::endl << std::endl;
-		*/Pa_Sleep(100);
+		Pa_Sleep(100);
 	}
+
 	sf_close(data->file);
 
 	error = Pa_CloseStream(stream);
@@ -130,20 +128,16 @@ static int Callback(const void* input,
 		int doubleIterator = 0;
 		for (int i = 0; i < monoSize; i++)
 		{
-			buffer[i] = cursor[doubleIterator] + cursor[doubleIterator+1];
+			monoBuffer[i] = cursor[doubleIterator] + cursor[doubleIterator+1];
 			doubleIterator += 2;
 		}
-
-		
-		//buffer = cursor;
-
+		stereoBuffer = cursor;
 
 		if (nFrames < frameCount)
 		{
 			//Finish playing audio
 			return paComplete;
 		}
-
 		//Increment the cursor
 		cursor += currentRead;
 		//Decrement the count of samples left

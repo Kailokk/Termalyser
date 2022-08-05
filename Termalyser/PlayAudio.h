@@ -6,16 +6,14 @@
 #include "VisualiserSettings.h"
 
 
+static int Callback(const void* input,
+	void* output,
+	unsigned long frameCount,
+	const PaStreamCallbackTimeInfo* timeInfo,
+	PaStreamCallbackFlags statusFlags,
+	void* audioData);
 
-
-	static int Callback(const void* input,
-		void* output,
-		unsigned long frameCount,
-		const PaStreamCallbackTimeInfo* timeInfo,
-		PaStreamCallbackFlags statusFlags,
-		void* audioData);
-
-	bool PlayAudio(std::string* path, std::string* OutputMessage, float*** bufferOut);
+bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBufferOut, float*** stereoBufferOut);
 
 
 

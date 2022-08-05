@@ -41,29 +41,27 @@ int main(int argc, char* argv[])
 	std::string message;
 
 	//Pointer to the audio buffer, for the graphic to read
-	float bufferStartingVal[FRAMES_PER_BUFFER];
-	float* initBufferPointer = &(bufferStartingVal[0]);
-	initBufferPointer[FRAMES_PER_BUFFER - 1] = 1;
-	float** bufferPointer = nullptr;
+	float** monoBufferPointer = nullptr;
+	float** stereoBufferPointer = nullptr;
 
 	//Screen object which loops an ftxui component
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 	bool refresh_ui_continue = true;
-/**/
-	std::thread Graphics_Thread([&bufferPointer, &screen, &refresh_ui_continue]
+	
+	std::thread Graphics_Thread([&monoBufferPointer, &screen, &refresh_ui_continue]
 		{
-			while (bufferPointer == nullptr)
+			while (monoBufferPointer == nullptr)
 			{
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(1ns);
 			}
-			screen.Loop(Oscilloscope(bufferPointer, refresh_ui_continue));
+			screen.Loop(ParticleOscilloscope(monoBufferPointer, refresh_ui_continue));
 		});
 
-	std::thread Audio_Thread([&screen, &visSettings, &message, &bufferPointer, &refresh_ui_continue]
+	std::thread Audio_Thread([&screen, &visSettings, &message, &monoBufferPointer, &refresh_ui_continue]
 		{
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
-			if (!PlayAudio(&visSettings.path, &message, &bufferPointer))
+			if (!PlayAudio(&visSettings.path, &message, &monoBufferPointer))
 			{
 				refresh_ui_continue = false;
 				auto func = screen.ExitLoopClosure();
@@ -75,7 +73,6 @@ int main(int argc, char* argv[])
 			auto exit = screen.ExitLoopClosure();
 			exit();
 		});
-
 	
 	
 	//Loop which refreshes screen continuously capped at a provided fps
@@ -84,7 +81,7 @@ int main(int argc, char* argv[])
 	{
 		std::chrono::steady_clock::time_point currentFrame = (std::chrono::steady_clock::now());
 		float difference = ((float)std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - lastFrame).count()) / 1000.f;
-		if (difference < (1.0f / 24.0f))
+		if (difference < (1.0f / 60.0f))
 		{
 			continue;
 		}

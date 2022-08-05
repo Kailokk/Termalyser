@@ -156,7 +156,7 @@ bool CheckPathValid(std::string& path)
 
 
 //Block Line Oscilloscope
-ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
+ftxui::Component Oscilloscope(float**& monoBufferPointer, bool& showVisualisation)
 {
 	return Renderer([&]
 		{
@@ -182,8 +182,8 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 							float x = x_not_scaled * stereoFrames / canvasWidth;
 							int x1 = std::floor(x);
 							int x2 = std::min(x1 + 1, stereoFrames);
-							float y1 = (*bufferPointer)[x1] * halfCanvasHeight;
-							float y2 = (*bufferPointer)[x2] * halfCanvasHeight;
+							float y1 = (*monoBufferPointer)[x1] * halfCanvasHeight;
+							float y2 = (*monoBufferPointer)[x2] * halfCanvasHeight;
 							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + halfCanvasHeight;
 						};
 						
@@ -204,7 +204,7 @@ ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation)
 }
 
 
-ftxui::Component ParticleOscilloscope(float**& bufferPointer, bool& showVisualisation)
+ftxui::Component ParticleOscilloscope(float**& monoBufferPointer, bool& showVisualisation)
 {
 	return Renderer([&]
 		{
@@ -216,32 +216,32 @@ ftxui::Component ParticleOscilloscope(float**& bufferPointer, bool& showVisualis
 			{
 				auto my_Canvas = canvas([&](Canvas& c)
 					{
-						//Exits early if there is no screen visible
-						if (c.width() == 0)
+						if (c.width() == 0 || c.height() == 0)
 						{
 							return;
 						}
+						int canvasHeight = c.height();
+						int halfCanvasHeight = canvasHeight / 2;
+						int canvasWidth = c.width();
+						const int stereoFrames = (FRAMES_PER_BUFFER / 2);
 
-						//Linear Interpolation
 						auto SampleBuffer = [&](int x_not_scaled)
 						{
-							float x = x_not_scaled * FRAMES_PER_BUFFER / c.width();
+							float x = x_not_scaled * stereoFrames / canvasWidth;
 							int x1 = std::floor(x);
-							int x2 = std::min(x1 + 1, FRAMES_PER_BUFFER - 1);
-							float y1 = (*bufferPointer)[x1] * (c.height());
-							float y2 = (*bufferPointer)[x2] * (c.height());
-							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + (c.height() / 2);
+							int x2 = std::min(x1 + 1, stereoFrames);
+							float y1 = (*monoBufferPointer)[x1] * halfCanvasHeight;
+							float y2 = (*monoBufferPointer)[x2] * halfCanvasHeight;
+							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + halfCanvasHeight;
 						};
 
 						//Previous value to draw a line from
-						int previousY = SampleBuffer(0);
 						//draws lines along the center of the x axis, offsetting the y based on the buffers current contents
-						for (int x = 1; x < c.width() - 1; x++)
+						for (int x = 0; x < canvasWidth - 1; x++)
 						{
-							float nextY = SampleBuffer(x);
-							c.DrawBlockLine(x - 1, previousY, x, nextY);
-							previousY = nextY;
+							c.DrawPointOn(x, SampleBuffer(x));
 						}
+
 					});
 				return my_Canvas | flex;
 			}
