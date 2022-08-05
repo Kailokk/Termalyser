@@ -1,5 +1,5 @@
 #include "PlayAudio.h"
-
+#include <iostream>
 //Audio Buffer
 float arr[FRAMES_PER_BUFFER];
 float* buffer = (float*)malloc(sizeof(arr));
@@ -87,14 +87,12 @@ static int Callback(const void* input,
 	void* audioData)
 {
 	AudioData* data = (AudioData*)audioData;
-	float* cursor;
-	float* out = (float*)output;
+	float* cursor = (float*)output;
 	int frameSize = frameCount;
 	int nFrames = frameCount;
 	int currentRead;
 
 	//set cursor to beginning
-	cursor = out;
 
 	while (frameSize > 0)
 	{
@@ -121,7 +119,19 @@ static int Callback(const void* input,
 		//Read straight into the buffer
 		nFrames = sf_readf_float(data->file, cursor, currentRead);
 		readSize = currentRead;
-		buffer = cursor;
+		
+		int monoSize = FRAMES_PER_BUFFER / 2;
+		int doubleIterator = 0;
+		for (int i = 0; i < monoSize; i++)
+		{
+			buffer[i] = cursor[doubleIterator] + cursor[doubleIterator+1];
+			doubleIterator += 2;
+		}
+
+		
+		//buffer = cursor;
+
+
 		if (nFrames < frameCount)
 		{
 			//Finish playing audio
