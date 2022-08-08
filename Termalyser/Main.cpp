@@ -42,26 +42,27 @@ int main(int argc, char* argv[])
 
 	//Pointer to the audio buffer, for the graphic to read
 	float** monoBufferPointer = nullptr;
-	float** stereoBufferPointer = nullptr;
+	StereoSignal* stereoBufferPointer = (StereoSignal*)malloc(sizeof(StereoSignal));
+	(*stereoBufferPointer).rightChannel = nullptr;
 
 	//Screen object which loops an ftxui component
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 	bool refresh_ui_continue = true;
 	
-	std::thread Graphics_Thread([&monoBufferPointer, &screen, &refresh_ui_continue]
+	std::thread Graphics_Thread([&monoBufferPointer,&stereoBufferPointer, &screen, &refresh_ui_continue]
 		{
-			while (monoBufferPointer == nullptr)
+			while (monoBufferPointer == nullptr|| (*stereoBufferPointer).rightChannel == nullptr)
 			{
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(1ns);
 			}
-			screen.Loop(ParticleOscilloscope(monoBufferPointer, refresh_ui_continue));
+			screen.Loop(Oscilloscope(monoBufferPointer, refresh_ui_continue));
 		});
 
-	std::thread Audio_Thread([&screen, &visSettings, &message, &monoBufferPointer, &refresh_ui_continue]
+	std::thread Audio_Thread([&screen, &visSettings, &message, &monoBufferPointer,&stereoBufferPointer, &refresh_ui_continue]
 		{
 			//Play audio, exiting on error with specific message. Passes out a pointer for the audio buffer
-			if (!PlayAudio(&visSettings.path, &message, &monoBufferPointer))
+			if (!PlayAudio(&visSettings.path, &message, &monoBufferPointer,stereoBufferPointer))
 			{
 				refresh_ui_continue = false;
 				auto func = screen.ExitLoopClosure();

@@ -6,6 +6,8 @@
 #include "VisualiserSettings.h"
 
 
+
+
 static int Callback(const void* input,
 	void* output,
 	unsigned long frameCount,
@@ -13,7 +15,7 @@ static int Callback(const void* input,
 	PaStreamCallbackFlags statusFlags,
 	void* audioData);
 
-bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBufferOut, float*** stereoBufferOut);
+bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBufferOut, StereoSignal* stereoBufferOut);
 
 
 

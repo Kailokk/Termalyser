@@ -3,13 +3,15 @@
 //Audio Buffers
 float monoBufferSize[FRAMES_PER_BUFFER/2];
 float* monoBuffer = (float*)malloc(sizeof(monoBufferSize));
-float stereoBufferSize[FRAMES_PER_BUFFER];
-float* stereoBuffer = (float*)malloc(sizeof(stereoBufferSize));
+float* leftChannelBuffer = (float*)malloc(sizeof(monoBufferSize));
+float* rightChannelBuffer = (float*)malloc(sizeof(monoBufferSize));
+
+StereoSignal stereoBuffer;
 
 //Buffer Read Size
 int readSize = 0;
 
-bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBufferOut, float*** stereoBufferOut)
+bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBufferOut, StereoSignal* stereoBufferOut)
 {
 	//Initialisations
 	AudioData* data = (AudioData*)malloc(sizeof(AudioData));
@@ -19,6 +21,9 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBuffe
 	data->position = 0;
 	data->info.format = 0;
 	
+	stereoBuffer.leftChannel = leftChannelBuffer;
+	stereoBuffer.rightChannel = rightChannelBuffer;
+
 	//Open File
 	data->file = sf_open(path->c_str(), SFM_READ, &data->info);
 	if (sf_error(data->file) != SF_ERR_NO_ERROR)
@@ -56,10 +61,10 @@ bool PlayAudio(std::string* path, std::string* OutputMessage, float*** monoBuffe
 
 	while (Pa_IsStreamActive(stream))
 	{
-		if (monoBuffer != nullptr || stereoBuffer != nullptr)
+		if (monoBuffer != nullptr || stereoBuffer.rightChannel != nullptr)
 		{
 			*monoBufferOut = &monoBuffer;
-			*stereoBufferOut = &stereoBuffer;
+			stereoBufferOut = &stereoBuffer;
 		}
 		Pa_Sleep(100);
 	}
@@ -128,10 +133,11 @@ static int Callback(const void* input,
 		int doubleIterator = 0;
 		for (int i = 0; i < monoSize; i++)
 		{
-			monoBuffer[i] = cursor[doubleIterator] + cursor[doubleIterator+1];
+			leftChannelBuffer[i] = cursor[doubleIterator];
+			rightChannelBuffer[i] = cursor[doubleIterator +1];
+			monoBuffer[i] = leftChannelBuffer[i] + rightChannelBuffer[i];
 			doubleIterator += 2;
 		}
-		stereoBuffer = cursor;
 
 		if (nFrames < frameCount)
 		{

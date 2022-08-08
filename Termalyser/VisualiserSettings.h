@@ -25,3 +25,9 @@ struct AudioData
 	SF_INFO info;
 	int position;//index to the file
 };
+
+struct StereoSignal
+{
+	float* leftChannel;
+	float* rightChannel;
+};

@@ -13,11 +13,13 @@ ftxui::Component Wrap(std::string name, ftxui::Component component);
 //return render for each visualisation -----------------------------------------------------------------
 
 //Oscilloscope
-ftxui::Component Oscilloscope(float**& bufferPointer, bool& showVisualisation);
+ftxui::Component Oscilloscope(float**& monoBufferPointer, bool& showVisualisation);
 
 //Dot Visualiser
-ftxui::Component ParticleOscilloscope(float**& bufferPointer, bool& showVisualisation);
+ftxui::Component ParticleOscilloscope(float**& monoBufferPointer, bool& showVisualisation);
 
+//Stereo Bar Oscilloscope
+ftxui::Component StereoBarOscilloscope(StereoSignal* stereoBufferPointer, bool& showVisualisation);
 
 
 //Spectrum Analyser

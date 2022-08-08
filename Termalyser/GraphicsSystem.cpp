@@ -186,7 +186,7 @@ ftxui::Component Oscilloscope(float**& monoBufferPointer, bool& showVisualisatio
 							float y2 = (*monoBufferPointer)[x2] * halfCanvasHeight;
 							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + halfCanvasHeight;
 						};
-						
+
 						//Previous value to draw a line from
 						int previousY = SampleBuffer(0);
 						//draws lines along the center of the x axis, offsetting the y based on the buffers current contents
@@ -225,6 +225,7 @@ ftxui::Component ParticleOscilloscope(float**& monoBufferPointer, bool& showVisu
 						int canvasWidth = c.width();
 						const int stereoFrames = (FRAMES_PER_BUFFER / 2);
 
+
 						auto SampleBuffer = [&](int x_not_scaled)
 						{
 							float x = x_not_scaled * stereoFrames / canvasWidth;
@@ -242,6 +243,62 @@ ftxui::Component ParticleOscilloscope(float**& monoBufferPointer, bool& showVisu
 							c.DrawPointOn(x, SampleBuffer(x));
 						}
 
+					});
+				return my_Canvas | flex;
+			}
+		});
+}
+
+
+ftxui::Component StereoBarOscilloscope(StereoSignal* stereoBufferPointer, bool& showVisualisation)
+{
+	return Renderer([&]
+		{
+			if (!showVisualisation)
+			{
+				return vbox({});
+			}
+			else
+			{
+				auto my_Canvas = canvas([&](Canvas& c)
+					{
+						if (c.width() == 0 || c.height() == 0)
+						{
+							return;
+						}
+
+						c.DrawText(0, 0, "Test");
+
+						int canvasHeight = c.height();
+						int halfCanvasHeight = canvasHeight / 2;
+						int canvasWidth = c.width();
+						const int stereoFrames = (FRAMES_PER_BUFFER / 2);
+						//loop through each value in the buffer, drawing a line vertically up for left and down for right
+/*
+						auto SampleBuffer = [&](int x_not_scaled, float* buffer)
+						{
+							float x = x_not_scaled * stereoFrames / canvasWidth;
+							int x1 = std::floor(x);
+							int x2 = std::min(x1 + 1, stereoFrames);
+							float y1 = buffer[x1] * halfCanvasHeight;
+							float y2 = buffer[x2] * halfCanvasHeight;
+							return static_cast<int>((x - x1) * y2 + (x2 - x) * y1) + halfCanvasHeight;
+						};
+
+						StereoSignal stereoBuffer = *stereoBufferPointer;
+
+
+						for (int x = 1; x < canvasWidth - 1; x++)
+						{
+							float nextY = SampleBuffer(x,stereoBuffer.leftChannel);
+							c.DrawBlockLine(x, halfCanvasHeight, x, nextY);
+						}
+						for (int x = 1; x < canvasWidth - 1; x++)
+						{
+							float nextY = SampleBuffer(x, stereoBuffer.leftChannel);
+							c.DrawBlockLine(x, halfCanvasHeight, x, nextY);
+						}
+						*/
 					});
 				return my_Canvas | flex;
 			}
